@@ -1,0 +1,1569 @@
+1
+installeer wamp!
+
+2
+installeer vs code (doe cd je project naam in terminal)
+installeer php 7.4.18
+installeer composer
+installeer mariadb 10.5.9
+installeer nginx 1.20 , zet de domain goed!!! public
+installeer laravel 7: composer create-project --prefer-dist laravel/laravel:^7.0 hier het project naam
+
+3
+.env database naam naar project naam zetten en een database aanmaken in phpymyadmin
+
+4.
+projectnaam/categories voor de website.
+
+5.
+php artisan make:model Category
+
+6.
+Php artisan make:migration --create=categories create_categories_table
+
+7.
+zet dit in de migration:
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateCategoriesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('categories', function (Blueprint $table) {
+            $table->id();
+
+
+    Deze regel!!!! --->       $table->string('name', 100);
+
+
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('categories');
+    }
+}
+
+8.
+php artisan migrate
+
+9.
+php artisan make:factory --model=Category CategoryFactory
+
+10.
+zet dit in de factory category:
+
+<?php
+
+/** @var \Illuminate\Database\Eloquent\Factory $factory */
+
+use App\Category;
+use Faker\Generator as Faker;
+
+$factory->define(Category::class, function (Faker $faker) {
+    return [
+        //
+        'name' => $faker->name,
+        'created_at' => $faker->dateTimeThisDecade('now', 'Europe/Amsterdam'),
+        'updated_at' => $faker->dateTimeThisDecade('now', 'Europe/Amsterdam')
+    ];
+});
+
+11.
+php artisan make:seeder CategorySeeder
+
+12. 
+Zet dit in categoryseeder:
+
+<?php
+
+use Illuminate\Database\Seeder;
+use App\Category;
+class CategorySeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        //
+        factory(Category::class, 10)->create();
+    }
+}
+
+13.
+zet dit in databaseseeder.php:
+$this->call( CategorySeeder::class);
+
+14.
+php artisan db:seed
+
+15. 
+voer deze uit: composer require laravel/ui:^2.4
+
+16. 
+voer deze uit: php artisan ui bootstrap --auth
+
+17. Voor als het werkt:
+npm install, daarna npm run dev.
+
+18.
+maak folder aan in views: Layouts en daarin een file: layout.blade.php
+
+19. 
+zet dit in de layout.blade.php:
+
+<html lang="en" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>laravel crud</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.4/examples/sticky-footer-navbar/">
+
+    <!-- Bootstrap core CSS -->
+<link href="/docs/4.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <!-- Favicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="sticky-footer-navbar.css" rel="stylesheet">
+  </head>
+  <body class="d-flex flex-column h-100">
+    <header>
+  <!-- Fixed navbar -->
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="/categories">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+      </ul>
+      
+      <ul class="navbar-nav ml-auto">
+        @guest
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+            </li>
+            @if (Route::has('register'))
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                </li>
+            @endif
+        @else
+            <li class="nav-item dropdown">
+                <a id="navbarDropdown" class="nav-link dorpdown-toggle" href="#" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                        {{ Auth::user()->name }} <span class="caret"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledy="navbarDropdown">
+                    <a class="drowpdown-item" href="{{ route('logout') }}"
+                        onclick="event.preventDefault();
+                                                document.getElementById('logout-form').submit();">
+                        {{ __('Logout') }}
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                    </form>
+                </div>
+            </li>
+        @endguest 
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="flex-shrink-0">
+  <div class="container">
+      @yield('content')
+  </div>
+</main>
+
+<footer class="footer mt-auto py-3">
+  <div class="container">
+    <span class="text-muted">Place sticky footer content here.</span>
+  </div>
+</footer>
+<script src="{{asset('js/app.js')}}"></script>
+</body>
+</html>
+
+20.
+voer uit: php artisan make:controller --model=Category CategoryController
+
+21.
+open web.php en zet dit erin:
+Route::resource('/categories', 'CategoryController');
+
+22.
+zet dit in categorycontroller: public function index:
+$categories = Category::all();
+return view('admin.categories.index', compact('categories'));
+
+23.
+maak in resources/views een admin folder aan en in admin een categories folder dus: resources/views/admin/categories
+
+24.
+maak in resources/views/admin/categories de file index.blade.php en zet dit daarin:
+
+
+@extends('Layouts.layout')
+
+@section('content')
+    <br><h1 class="mt-5">Categories</h1>
+
+    @if ($errors->any())
+        <div class="alert alert-succes">
+            {{ session('message') }}
+        </div>
+    @endif
+
+    <nav class="nav">
+        <ul class="nav nav-tabs">
+            <li class="nav-items">
+                <a class"nav-link active" href="{{ route('categories.index') }}">Home</a>
+            </li>
+       deze nog niet     <li class="nav-items">
+       deze nog niet         <a class"nav-link" href="{{ route('categories.create') }}">Create</a>
+       deze nog niet    </li>
+        </ul>
+    </nav>
+    <table class="table .table-striped">
+        <thead class="thead-dark">
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">Category</th>
+       deze nog niet     <th scope="col">Category details</th>
+       deze nog niet     <th scope="col">Edit</th>
+       deze nog niet     <th scope="col">Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach($categories as $category)
+            <tr>
+                <td scope="row">{{ $category->id }}</td>
+                <td>{{ $category->name }}</td>
+          deze nog niet     <td><a href="{{ route('categories.show', ['category' => $category->id]) }}">Details</a></td>
+          deze nog niet  <td><a href="{{ route('categories.edit', ['category' => $category->id]) }}">Edit</a></td>
+          deze nog niet <td><a href="{{ route('categories.delete', ['category' => $category->id]) }}">Delete</a></td>
+            </tr>
+        @endforeach
+        </tbody>
+    </table>
+  @endsection
+
+
+24.5 zet dit in function create:
+ public function create()
+    {
+        return view('admin.categories.create');
+    }
+25.
+maak in admin/categories een create.blade.php aan.en zet dit erin:
+
+@extends('Layouts.layout')
+
+@section('content')
+    <br><h1 class="mt-5">Categories create</h1>
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <nav class="nav">
+        <ul class="nav nav-tabs">
+            <li class="nav-items">
+                <a class"nav-link" href="{{ route('categories.index') }}">Home</a>
+            </li>
+            <li class="nav-items">
+                <a class"nav-link active" href="{{ route('categories.create') }}">Create</a>
+            </li>
+        </ul>
+    </nav>
+    <form method="POST" action="{{ route('categories.store') }}">
+        @csrf
+
+        <div class="form-group">
+            <label for="name">Category name</label>
+            <input type="text" name="name" class="form-control" id="name"
+                    aria-describedby="categorienameHelp" placeholder="Enter Category name">
+        </div>
+        <button type="Submit" class="btn btn-primary">Submit</button>
+    </form>
+
+@endsection
+
+26.
+ga naar de link projectnaam/categories/create
+
+27. 
+zet dit in categorycontroller.php
+
+    public function store(CategoryStoreRequest $request)
+    {
+        $category = new Category(); 
+        $category->name = $request->name;
+        $category->save();
+
+        return redirect()->route('categories.index')->with('message', 'Categorie aangemaakt');
+    }
+
+28. 
+zet dit in app/category.php: protected $fillable = ['name'];
+
+29.
+voer dit uit: php artisan make:request CategoryStoreRequest
+
+30.
+zet dit in categorystorerequest.php:
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class CategoryStoreRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        return [
+            'name' => 'required|string|unique:categories|max:100'
+        ];
+    }
+}
+
+31.
+zet dit boven in categorycontroller onder use app/category:
+use App\Http\Requests\CategoryStoreRequest;
+
+32. 
+vervand de errors in create.blade.php:
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+33. 
+vervang in index.blade.php:
+   @if ($errors->any())
+        <div class="alert alert-succes">
+            {{ session('message') }}
+        </div>
+    @endif
+
+34. zet dit in public function show:
+ public function show(Category $category)
+    {
+        return view('admin.categories.show', compact('category'));
+    }
+
+35. 
+maak een show.blade.php in de map admin/categories met dit erin:
+@extends('Layouts.layout')
+
+@section('content')
+    <br><h1 class="mt-5">Categories Details</h1>
+
+    <nav class="nav">
+        <ul class="nav nav-tabs">
+            <li class="nav-items">
+                <a class"nav-link" href="{{ route('categories.index') }}">Home</a>
+            </li>
+            <li class="nav-items">
+                <a class"nav-link" href="{{ route('categories.create') }}">Create</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="card">
+        <div class="card-header">
+            categories
+        </div>
+        <div class="card-body">
+            <h2 class="card-title">{{ $category->name}}</h2>
+        </div>
+    </div>
+
+@endsection
+
+36.
+pas de td even aan waar nog niet gebruiken bij staat.
+
+37.
+pas public function edit aan:
+
+   public function edit(Category $category)
+    {
+        return view( 'admin.categories.edit', compact('category'));
+    }
+
+38. maak een edit.blade.php aan in admin/category en zet dit erin:
+@extends('Layouts.layout')
+
+@section('content')
+    <br><h1 class="mt-5">Edit</h1>
+
+    <nav class="nav">
+        <ul class="nav nav-tabs">
+            <li class="nav-items">
+                <a class"nav-link" href="{{ route('categories.index') }}">Home</a>
+            </li>
+            <li class="nav-items">
+                <a class"nav-link" href="{{ route('categories.create') }}">Create</a>
+            </li>
+            <li class="nav-items">
+                <a class"nav-link active" href="{{ route('categories.edit', ['category' => $category->id]) }}">Edit category</a>
+            </li>
+        </ul>
+    </nav>
+    <form method="POST" action="{{ route('categories.update', ['category' => $category->id]) }}">
+        @method('PUT')
+        @csrf
+
+        <div class="form-group">
+            <label for="name">Category name</label>
+            <input type="text" name="name" class="form-control" id="name" aria-describedby="categorienameHelp"
+                    value="{{ $category->name }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+
+@endsection
+
+39.
+pas index.blade even aan met de edit in de td nu.
+
+40.
+pas public function update aan met dit:
+ public function update(CategoryUpdateRequest $request, Category $category)
+    {
+        $category->name = $request->name;
+        $category->save();
+
+        return redirect()->route('categories.index')->with('message', 'Categorie geupdate');
+    }
+
+41.
+voer uit: php artisan make:request CategoryUpdateRequest
+
+42. wijzig categoryupdateRequest:
+<?php
+
+namespace App\Http\Requests;
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class CategoryUpdateRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        $category = $this->route('category');
+        return [
+            'name' => 'required|string|max:100|unique:categories,name,'.$category->id
+        ];
+    }
+}
+
+
+43.
+wijzig de index.blade nog even met de td's
+
+44. voeg dit toe boven destroy public function:
+    public function delete(Category $category)
+    {
+        return view('admin.categories.delete', compact('category'));
+    }
+
+45. 
+maak een delete.blade.php aan in de categories map,
+
+46.
+zet dit in de delete.blade.php:
+@extends('Layouts.layout')
+
+@section('content')
+    <br><h1 class="mt-5">Delete</h1>
+
+    <nav class="nav">
+        <ul class="nav nav-tabs">
+            <li class="nav-items">
+                <a class"nav-link" href="{{ route('categories.index') }}">Home</a>
+            </li>
+            <li class="nav-items">
+                <a class"nav-link" href="{{ route('categories.create') }}">Create</a>
+            </li>
+            <li class="nav-items">
+                <a class"nav-link active" href="{{ route('categories.delete', ['category' => $category->id]) }}">Delete category</a>
+            </li>
+        </ul>
+    </nav>
+    <form method="POST" action="{{ route('categories.destroy', ['category' => $category->id]) }}">
+        @method('DELETE')
+        @csrf
+
+        <div class="form-group">
+            <label for="name">Category name</label>
+            <input type="text" name="name" class="form-control" id="name" aria-describedby="categorienameHelp"
+                    value="{{ $category->name }}" disabled="disabled">
+        </div>
+        <button type="submit" class="btn btn-primary">Delete</button>
+    </form>
+
+@endsection
+
+47.
+pas de public function destroy aan:
+   public function destroy(Category $category)
+    {
+        $category->delete();
+        return redirect()->route('categories.index')->with('message', 'Category deleted');
+    }
+
+48.
+voer uit: Composer require spatie/laravel-permission
+
+
+49. 
+ga naar config/app.php en zet dit erin op regel 168:
+Spatie\Permission\PermissionServiceProvider::class,
+
+
+50.
+voer uit: php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+
+51.
+voeg dit toe aan User.php:
+
+<?php
+
+namespace App;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+    use HasRoles;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+}
+
+
+
+52,
+voer uit: php artisan make:seeder RoleAndPermissionSeeder
+
+53,
+pas roleandpermission aan:
+
+<?php
+
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+
+class RoleAndPermissionSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        app()['cache']->forget('spatie.permission.cache');
+
+        Permission::create(['name' => 'create category']);
+        Permission::create(['name' => 'edit category']);
+        Permission::create(['name' => 'delete category']);
+
+        $role = Role::create(['name' => 'customer']);
+
+        $role = Role::create(['name' => 'sales']);
+        $role->givePermissionTo('create category', 'edit category');
+
+        $role = Role::create(['name' => 'admin']);
+        $role->givePermissionTo(Permission::all());
+    }
+}
+
+
+
+54,
+voer uit:
+php artisan make:seeder UserSeeder
+
+55.
+zet dit in userseeder.php:
+
+<?php
+
+use Illuminate\Database\Seeder;
+use App\User;
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        factory(User::class, 1)->create([
+            'name'=>'Customer',
+            'email'=>'customer@test.com',
+            'password'=> bcrypt('test1234')])
+            ->each(function (User $user) {
+                $user->assignRole('customer');
+            });
+        factory(User::class, 1)->create([
+            'name'=>'Sales',
+            'email'=>'sales@test.com',
+            'password'=> bcrypt('test1234')])
+            ->each(function (User $user) {
+                $user->assignRole('sales');
+            });
+        factory(User::class, 1)->create([
+            'name'=>'Admin',
+            'email'=>'admin@test.com',
+            'password'=> bcrypt('test1234')])
+            ->each(function (User $user) {
+                $user->assignRole('admin');
+            });
+
+        factory(User::class, 50)->create();
+
+    }
+}
+
+
+56,
+pas de databaseseeder aan:
+<?php
+
+use Illuminate\Database\Seeder;
+
+class DatabaseSeeder extends Seeder
+{
+    /**
+     * Seed the application's database.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        // $this->call(UsersTableSeeder::class);
+        $this->call( RoleAndPermissionSeeder::class);
+        $this->call( UserSeeder::class);
+        $this->call( CategorySeeder::class);
+    }
+}
+
+57,
+voer uit:
+php artisan migrate:fresh --seed
+
+58,
+pas kernel.php aan in app/http: 
+
+<?php
+
+namespace App\Http;
+
+use Illuminate\Foundation\Http\Kernel as HttpKernel;
+
+class Kernel extends HttpKernel
+{
+    /**
+     * The application's global HTTP middleware stack.
+     *
+     * These middleware are run during every request to your application.
+     *
+     * @var array
+     */
+    protected $middleware = [
+        \App\Http\Middleware\TrustProxies::class,
+        \Fruitcake\Cors\HandleCors::class,
+        \App\Http\Middleware\CheckForMaintenanceMode::class,
+        \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
+        \App\Http\Middleware\TrimStrings::class,
+        \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
+    ];
+
+    /**
+     * The application's route middleware groups.
+     *
+     * @var array
+     */
+    protected $middlewareGroups = [
+        'web' => [
+            \App\Http\Middleware\EncryptCookies::class,
+            \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+            \Illuminate\Session\Middleware\StartSession::class,
+            // \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \App\Http\Middleware\VerifyCsrfToken::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+
+        'api' => [
+            'throttle:60,1',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ],
+    ];
+
+    /**
+     * The application's route middleware.
+     *
+     * These middleware may be assigned to groups or used individually.
+     *
+     * @var array
+     */
+    protected $routeMiddleware = [
+        'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+        'bindings' => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
+        'can' => \Illuminate\Auth\Middleware\Authorize::class,
+        'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
+        'password.confirm' => \Illuminate\Auth\Middleware\RequirePassword::class,
+        'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
+        'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+        'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'role' => \Spatie\Permission\Middlewares\RoleMiddleware::class,
+        'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
+        'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
+    ];
+
+
+59,
+
+ga naar routes/web.php en pas aan:
+Route::group(['middleware' => ['role:customer|sales|admin']], function() {
+    Route::get('categories/{category}/delete', 'CategoryController@delete')
+        ->name('categories.delete');
+    Route::resource('/categories', 'CategoryController');
+
+60,
+maak in views map een errors map en zet hier 403.blade.php in met deze code:
+@extends('Layouts.layout')
+
+@section('content')
+    <br><h1 class="mt-5">Categories create</h1>
+    <div class="alert alert-danger">
+        {{ $exception->getMessage() }}
+    </div>
+
+
+@endsection
+
+61,
+pas layout.blade.php aan:
+
+<html lang="en" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>laravel crud</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.4/examples/sticky-footer-navbar/">
+
+    <!-- Bootstrap core CSS -->
+<link href="/docs/4.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <!-- Favicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="sticky-footer-navbar.css" rel="stylesheet">
+  </head>
+  <body class="d-flex flex-column h-100">
+    <header>
+  <!-- Fixed navbar -->
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="/categories">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+      </ul>
+      
+      <ul class="navbar-nav ml-auto">
+        @guest
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+            </li>
+            @if (Route::has('register'))
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                </li>
+            @endif
+        @else
+            <li class="nav-item dropdown">
+                <a id="navbarDropdown" class="nav-link dorpdown-toggle" href="#" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                        {{ Auth::user()->name }} <span class="caret"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledy="navbarDropdown">
+                    <a class="drowpdown-item" href="{{ route('logout') }}"
+                        onclick="event.preventDefault();
+                                                document.getElementById('logout-form').submit();">
+                        {{ __('Logout') }}
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                    </form>
+                </div>
+            </li>
+        @endguest 
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="flex-shrink-0">
+  <div class="container">
+      @yield('content')
+  </div>
+</main>
+
+<footer class="footer mt-auto py-3">
+  <div class="container">
+    <span class="text-muted">Place sticky footer content here.</span>
+  </div>
+</footer>
+<script src="{{asset('js/app.js')}}"></script>
+</body>
+</html>
+
+
+62,
+pas login.blade.php aan:
+@extends('Layouts.layout')
+
+@section('content')
+
+<h1 class="mt-5">Login</h1>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Login') }}</div>
+
+                <div class="card-body">
+                    <form method="POST" action="{{ route('login') }}">
+                        @csrf
+
+                        <div class="form-group row">
+                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+
+                                @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-md-6 offset-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+
+                                    <label class="form-check-label" for="remember">
+                                        {{ __('Remember Me') }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-md-8 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('Login') }}
+                                </button>
+
+                                @if (Route::has('password.request'))
+                                    <a class="btn btn-link" href="{{ route('password.request') }}">
+                                        {{ __('Forgot Your Password?') }}
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+63,
+pas register.blade.php aan:
+
+@extends('Layouts.layout')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Register') }}</div>
+
+                <div class="card-body">
+                    <form method="POST" action="{{ route('register') }}">
+                        @csrf
+
+                        <div class="form-group row">
+                            <label for="name" class="col-md-4 col-form-label text-md-right">{{ __('Name') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="name" type="text" class="form-control @error('name') is-invalid @enderror" name="name" value="{{ old('name') }}" required autocomplete="name" autofocus>
+
+                                @error('name')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email">
+
+                                @error('email')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password">
+
+                                @error('password')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="password-confirm" class="col-md-4 col-form-label text-md-right">{{ __('Confirm Password') }}</label>
+
+                            <div class="col-md-6">
+                                <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <div class="form-group row mb-0">
+                            <div class="col-md-6 offset-md-4">
+                                <button type="submit" class="btn btn-primary">
+                                    {{ __('Register') }}
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+
+
+64,
+pas verify.blade.php aan:
+@extends('Layouts.layout')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Verify Your Email Address') }}</div>
+
+                <div class="card-body">
+                    @if (session('resent'))
+                        <div class="alert alert-success" role="alert">
+                            {{ __('A fresh verification link has been sent to your email address.') }}
+                        </div>
+                    @endif
+
+                    {{ __('Before proceeding, please check your email for a verification link.') }}
+                    {{ __('If you did not receive the email') }},
+                    <form class="d-inline" method="POST" action="{{ route('verification.resend') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-link p-0 m-0 align-baseline">{{ __('click here to request another') }}</button>.
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+65,
+pas de home.blade.php aan:
+ 
+@extends('Layouts.layout')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">{{ __('Dashboard') }}</div>
+
+                <div class="card-body">
+                    @if (session('status'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+
+                    {{ __('You are logged in!') }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+
+66:
+verwijder app.blade.php
+
+67.
+replace de web.php met dit:
+
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/', 'HomeController@index')->name('start');
+Route::get('categories/{category}/delete', 'CategoryController@delete')
+    ->name('categories.delete');
+Route::resource('/categories', 'CategoryController');
+
+Route::group(['middleware' => ['role:customer|sales|admin']], function() {
+    Route::get('categories/{category}/delete', 'CategoryController@delete')
+        ->name('categories.delete');
+    Route::resource('/categories', 'CategoryController');
+});
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+
+68,
+pas categorycontroller aan naar dit:
+
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Category;
+use App\Http\Requests\CategoryStoreRequest;
+use App\Http\Requests\CategoryUpdateRequest;
+use Illuminate\Http\Request;
+
+class CategoryController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $categories = Category::all();
+        return view('admin.categories.index', compact('categories'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('admin.categories.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(CategoryStoreRequest $request)
+    {
+        $category = new Category(); 
+        $category->name = $request->name;
+        $category->save();
+
+        return redirect()->route('categories.index')->with('message', 'Categorie aangemaakt');
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Category  $category
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Category $category)
+    {
+        return view('admin.categories.show', compact('category'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Category  $category
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Category $category)
+    {
+        return view( 'admin.categories.edit', compact('category'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Category  $category
+     * @return \Illuminate\Http\Response
+     */
+    public function update(CategoryUpdateRequest $request, Category $category)
+    {
+        $category->name = $request->name;
+        $category->save();
+
+        return redirect()->route('categories.index')->with('message', 'Categorie geupdate');
+    }
+
+    public function delete(Category $category)
+    {
+        return view('admin.categories.delete', compact('category'));
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Category  $category
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Category $category)
+    {
+        $category->delete();
+        return redirect()->route('categories.index')->with('message', 'Category deleted');
+    }
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware( 'permission:create category', ['only' => ['create', 'store']]);
+        $this->middleware( 'permission:edit category', ['only' => ['edit', 'update']]);
+        $this->middleware( 'permission:delete category', ['only' => ['delete', 'destroy']]);
+
+        
+    }
+}
+
+69, indien er iets fout is hierboven zet alleen dit onderaan in categorycontroller:
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware( 'permission:create category', ['only' => ['create', 'store']]);
+        $this->middleware( 'permission:edit category', ['only' => ['edit', 'update']]);
+        $this->middleware( 'permission:delete category', ['only' => ['delete', 'destroy']]);
+
+        
+    }
+}
+
+70,
+replace de userseed.php met dit:
+
+<?php
+
+use Illuminate\Database\Seeder;
+use App\User;
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        factory(User::class, 1)->create([
+            'name'=>'Customer',
+            'email'=>'customer@test.com',
+            'password'=> bcrypt('test1234')])
+            ->each(function (User $user) {
+                $user->assignRole('customer');
+            });
+        factory(User::class, 1)->create([
+            'name'=>'Sales',
+            'email'=>'sales@test.com',
+            'password'=> bcrypt('test1234')])
+            ->each(function (User $user) {
+                $user->assignRole('sales');
+            });
+        factory(User::class, 1)->create([
+            'name'=>'Admin',
+            'email'=>'admin@test.com',
+            'password'=> bcrypt('test1234')])
+            ->each(function (User $user) {
+                $user->assignRole('admin');
+            });
+
+        factory(User::class, 50)->create();
+
+    }
+}
+
+71, login!
+
+72, replace voor de zekerheid web.php met dit:
+
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+Route::get('/', 'HomeController@index')->name('start');
+Route::get('categories/{category}/delete', 'CategoryController@delete')
+    ->name('categories.delete');
+Route::resource('/categories', 'CategoryController');
+
+Route::group(['middleware' => ['role:customer|sales|admin']], function() {
+    Route::get('categories/{category}/delete', 'CategoryController@delete')
+        ->name('categories.delete');
+    Route::resource('/categories', 'CategoryController');
+});
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
+
+
+73, 
+pas layout.blade.php nog even aan:
+
+<html lang="en" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v3.8.6">
+    <title>laravel crud</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.4/examples/sticky-footer-navbar/">
+
+    <!-- Bootstrap core CSS -->
+<link href="/docs/4.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <!-- Favicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.min.css" />
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.0/jquery.validate.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    <!-- Custom styles for this template -->
+    <link href="sticky-footer-navbar.css" rel="stylesheet">
+  </head>
+  <body class="d-flex flex-column h-100">
+    <header>
+  <!-- Fixed navbar -->
+  <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <a class="navbar-brand" href="/categories">Home</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarCollapse">
+      <ul class="navbar-nav mr-auto">
+      </ul>
+      
+      <ul class="navbar-nav ml-auto">
+        @guest
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+            </li>
+            @if (Route::has('register'))
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+                </li>
+            @endif
+        @else
+            <li class="nav-item dropdown">
+                <a id="navbarDropdown" class="nav-link dorpdown-toggle" href="#" role="button"
+                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                        {{ Auth::user()->name }} <span class="caret"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledy="navbarDropdown">
+                    <a class="drowpdown-item" href="{{ route('logout') }}"
+                        onclick="event.preventDefault();
+                                                document.getElementById('logout-form').submit();">
+                        {{ __('Logout') }}
+                    </a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                    </form>
+                </div>
+            </li>
+        @endguest 
+      </ul>
+    </div>
+  </nav>
+</header>
+
+<!-- Begin page content -->
+<main role="main" class="flex-shrink-0">
+  <div class="container">
+      @yield('content')
+  </div>
+</main>
+
+<footer class="footer mt-auto py-3">
+  <div class="container">
+    <span class="text-muted">Place sticky footer content here.</span>
+  </div>
+</footer>
+<script src="{{asset('js/app.js')}}"></script>
+</body>
+</html>
+
+74,
+je bent klaar! hopelijk
+
+
+
+
+
+
+
+
+
+
+
+
