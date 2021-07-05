@@ -1,0 +1,152 @@
+stap 1, maak een tourney migration:
+Php artisan make:migration --create=tourneys create_tourneys_table
+
+en zet dit in de tourney migration:
+
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateTourneysTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('tourneys', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 100);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('tourneys');
+    }
+}
+
+
+stap 2,
+doe php artisan migrate
+
+stap 3, 
+php artisan make:controller --model=Tourney TourneyController 
+
+zet dit in de TourneyController:
+
+public function index()
+    {
+        $tourney = Tourney::all();
+        return view('admin.categories.tourney.comp', compact('tourney'));
+    }
+
+stap 4,
+maak een tourney map in admin/categories dus = admin/categories/tourney
+zet hierin een file genaamd: comp.blade.php met deze code:
+
+@extends('Layouts.layout')
+
+@section('content')
+    <br><h1 class="mt-5 text-center mb-5">Wedstrijden</h1>
+
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    <section>
+    <div class="row justify-content-center">
+        <div class="card m-2" style="width: 15rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center">Ronde 1</h5>
+                <ul class="list-group list-group-flush">
+                <h6 class="card-subtitle m-2 text-muted">Wedstrijd 1</h6>
+                <li class="list-group-item text-success">Speler1</li>
+                    <li class="list-group-item text-danger">Speler2</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 2</h6>
+                    <li class="list-group-item text-success">Speler3</li>
+                    <li class="list-group-item text-danger">Speler4</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 3</h6>
+                    <li class="list-group-item text-success">Speler5</li>
+                    <li class="list-group-item text-danger">Speler6</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 4</h6>
+                    <li class="list-group-item text-success">Speler7</li>
+                    <li class="list-group-item text-danger">Speler8</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 5</h6>
+                    <li class="list-group-item text-success">Speler9</li>
+                    <li class="list-group-item text-danger">Speler10</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 6</h6>
+                    <li class="list-group-item text-success">Speler11</li>
+                    <li class="list-group-item text-danger">Speler12</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 7</h6>
+                    <li class="list-group-item text-success">Speler13</li>
+                    <li class="list-group-item text-danger">Speler14</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 8</h6>
+                    <li class="list-group-item text-success">Speler15</li>
+                    <li class="list-group-item text-danger">Speler16</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card m-2" style="width: 15rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center">Ronde 2</h5>
+                <ul class="list-group list-group-flush">
+                <h6 class="card-subtitle m-2 text-muted">Wedstrijd 1</h6>
+                    <li class="list-group-item text-success">Speler1</li>
+                    <li class="list-group-item text-danger">Speler2</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 2</h6>
+                    <li class="list-group-item text-success">Speler3</li>
+                    <li class="list-group-item text-danger">Speler4</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 3</h6>
+                    <li class="list-group-item text-success">Speler5</li>
+                    <li class="list-group-item text-danger">Speler6</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 4</h6>
+                    <li class="list-group-item text-success">Speler7</li>
+                    <li class="list-group-item text-danger">Speler8</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card m-2" style="width: 15rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center">Ronde 3</h5>
+                <ul class="list-group list-group-flush">
+                <h6 class="card-subtitle m-2 text-muted">Wedstrijd 1</h6>
+                    <li class="list-group-item text-success">Speler1</li>
+                    <li class="list-group-item text-danger">Speler2</li>
+                    <h6 class="card-subtitle m-2 text-muted">Wedstrijd 2</h6>
+                    <li class="list-group-item text-success">Speler3</li>
+                    <li class="list-group-item text-danger">Speler4</li>
+                </ul>
+            </div>
+        </div>
+        <div class="card m-2" style="width: 15rem;">
+            <div class="card-body">
+                <h5 class="card-title text-center">Ronde 4</h5>
+                <ul class="list-group list-group-flush">
+                <h6 class="card-subtitle m-2 text-muted">Finale wedstrijd</h6>
+                    <li class="list-group-item text-success">Speler1</li>
+                    <li class="list-group-item text-danger">Speler2</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+@endsection
+
+stap 5, om naar deze pagina te gaan gebruik je: projectnaam/tourneys
+stap 6, zet deze pagina in de navigatie
